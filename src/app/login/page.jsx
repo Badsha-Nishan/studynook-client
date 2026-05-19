@@ -33,6 +33,12 @@ export default function LoginPage() {
     }
   };
 
+  const handleSignIn = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    });
+  };
+
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0B1120] px-4 py-20">
       {/* BG GLOW */}
@@ -162,7 +168,10 @@ export default function LoginPage() {
         </div>
 
         {/* GOOGLE */}
-        <button className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white transition-all duration-300 hover:bg-white/10">
+        <button
+          onClick={handleSignIn}
+          className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white transition-all duration-300 hover:bg-white/10"
+        >
           <FcGoogle size={24} />
           Continue with Google
         </button>

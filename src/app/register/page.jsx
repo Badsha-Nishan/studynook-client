@@ -53,13 +53,19 @@ export default function RegisterPage() {
     });
 
     if (data) {
-      toast.success("Account Created Successfully!");
+      toast.success("Registration successful! Please login.");
       router.push("/login");
       router.refresh();
     }
     if (error) {
       toast.error(`Failed! ${error.message}`);
     }
+  };
+
+  const handleSignIn = async () => {
+    await authClient.signIn.social({
+      provider: "google",
+    });
   };
 
   return (
@@ -237,7 +243,10 @@ export default function RegisterPage() {
         </div>
 
         {/* GOOGLE */}
-        <button className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white transition-all duration-300 hover:bg-white/10">
+        <button
+          onClick={handleSignIn}
+          className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white transition-all duration-300 hover:bg-white/10"
+        >
           <FcGoogle size={24} />
           Continue with Google
         </button>
