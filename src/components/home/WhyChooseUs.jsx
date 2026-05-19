@@ -9,6 +9,7 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 
 const reasons = [
   {
@@ -129,9 +130,12 @@ export default function WhyChooseUs() {
               </p>
             </div>
 
-            <button className="rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-8 py-4 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.03]">
+            <Link
+              href="/rooms"
+              className="rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-8 py-4 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.03]"
+            >
               Explore Rooms
-            </button>
+            </Link>
           </div>
         </div>
       </div>
