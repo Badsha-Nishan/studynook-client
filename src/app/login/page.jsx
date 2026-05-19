@@ -4,15 +4,32 @@ import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
+  const router = useRouter();
 
-    // LOGIN LOGIC HERE
-    console.log("Login submitted");
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const user = Object.fromEntries(formData.entries());
+
+    const { data, error } = await authClient.signIn.email({
+      email: user?.email,
+      password: user?.password,
+    });
+
+    if (data) {
+      alert("Success!");
+      router.push("/");
+      router.refresh();
+    }
+    if (error) {
+      alert(`Failed! ${error.message}`);
+    }
   };
 
   return (
@@ -50,7 +67,7 @@ export default function LoginPage() {
         </div>
 
         {/* FORM */}
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={onSubmit} className="space-y-5">
           {/* EMAIL */}
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-300">
@@ -64,6 +81,7 @@ export default function LoginPage() {
               />
 
               <input
+                name="email"
                 type="email"
                 placeholder="Enter your email"
                 required
@@ -85,6 +103,7 @@ export default function LoginPage() {
               />
 
               <input
+                name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Enter your password"
                 required

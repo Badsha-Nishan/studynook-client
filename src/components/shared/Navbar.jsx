@@ -4,12 +4,28 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { authClient, useSession } from "@/lib/auth-client";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const { data: session, isPending, error } = useSession();
+  console.log(session, isPending, error);
+  const user = session?.user;
+  console.log(user);
+
+  const handleLogOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = "/";
+        },
+      },
+    });
+  };
+
   // temporary auth state
-  const user = true;
+  // const user = false;
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -94,7 +110,7 @@ export default function Navbar() {
 
                 <div className="text-left">
                   <h4 className="text-sm font-semibold text-white">
-                    Rakib Hasan
+                    {user?.name}
                   </h4>
                   <p className="text-xs text-slate-400">Student</p>
                 </div>
@@ -108,8 +124,8 @@ export default function Navbar() {
               {/* DROPDOWN */}
               <div className="invisible absolute right-0 mt-3 w-56 translate-y-3 rounded-2xl border border-white/10 bg-[#111827] p-3 opacity-0 shadow-2xl shadow-black/30 transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
                 <div className="mb-3 border-b border-white/10 pb-3">
-                  <p className="font-semibold text-white">Rakib Hasan</p>
-                  <p className="text-sm text-slate-400">rakib@gmail.com</p>
+                  <p className="font-semibold text-white">{user?.name}</p>
+                  <p className="text-sm text-slate-400"> {user?.email}</p>
                 </div>
 
                 <div className="flex flex-col gap-1">

@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 
 import { FcGoogle } from "react-icons/fc";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -25,9 +27,12 @@ export default function RegisterPage() {
     uppercase: /[A-Z]/.test(password),
     lowercase: /[a-z]/.test(password),
   };
+  const router = useRouter();
 
-  const handleRegister = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const user = Object.fromEntries(formData.entries());
 
     if (
       !validations.length ||
@@ -38,7 +43,22 @@ export default function RegisterPage() {
     }
 
     // REGISTER LOGIC HERE
-    console.log("Registration submitted");
+
+    const { data, error } = await authClient.signUp.email({
+      name: user?.name,
+      email: user?.email,
+      image: user?.image,
+      password: user?.password,
+    });
+
+    if (data) {
+      alert("Success!");
+      router.push("/login");
+      router.refresh();
+    }
+    if (error) {
+      alert(`Failed! ${error.message}`);
+    }
   };
 
   return (
@@ -76,7 +96,7 @@ export default function RegisterPage() {
         </div>
 
         {/* FORM */}
-        <form onSubmit={handleRegister} className="space-y-5">
+        <form onSubmit={onSubmit} className="space-y-5">
           {/* NAME */}
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-300">
@@ -90,6 +110,7 @@ export default function RegisterPage() {
               />
 
               <input
+                name="name"
                 type="text"
                 placeholder="Enter your full name"
                 required
@@ -111,6 +132,7 @@ export default function RegisterPage() {
               />
 
               <input
+                name="email"
                 type="email"
                 placeholder="Enter your email"
                 required
@@ -132,6 +154,7 @@ export default function RegisterPage() {
               />
 
               <input
+                name="image"
                 type="text"
                 placeholder="Paste your profile image URL"
                 required
@@ -153,6 +176,7 @@ export default function RegisterPage() {
               />
 
               <input
+                name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="Create a password"
                 required
