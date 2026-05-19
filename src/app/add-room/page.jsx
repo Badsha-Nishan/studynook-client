@@ -10,6 +10,8 @@ import {
   DoorOpen,
   Check,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 const amenitiesList = [
   "Whiteboard",
@@ -32,6 +34,8 @@ export default function AddRoomPage() {
       setSelectedAmenities([...selectedAmenities, amenity]);
     }
   };
+
+  const router = useRouter();
 
   const handleAddRoom = async (e) => {
     e.preventDefault();
@@ -60,7 +64,12 @@ export default function AddRoomPage() {
     });
 
     const data = await res.json();
-    console.log(data);
+
+    if (data) {
+      toast.success("Add Room Successful.");
+      router.push("/rooms");
+      router.refresh();
+    }
   };
 
   return (
