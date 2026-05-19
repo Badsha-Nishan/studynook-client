@@ -6,6 +6,7 @@ import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,12 +24,12 @@ export default function LoginPage() {
     });
 
     if (data) {
-      alert("Success!");
+      toast.success("Login Successful.");
       router.push("/");
       router.refresh();
     }
     if (error) {
-      alert(`Failed! ${error.message}`);
+      toast.error(`Failed! ${error.message}`);
     }
   };
 

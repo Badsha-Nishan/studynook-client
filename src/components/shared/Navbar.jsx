@@ -2,30 +2,46 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { authClient, useSession } from "@/lib/auth-client";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const pathname = usePathname();
 
   const { data: session, isPending, error } = useSession();
-  console.log(session, isPending, error);
   const user = session?.user;
-  console.log(user);
 
   const handleLogOut = async () => {
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
+          toast.success("Logout Successful.");
           window.location.href = "/";
         },
       },
     });
   };
-
-  // temporary auth state
-  // const user = false;
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -61,7 +77,11 @@ export default function Navbar() {
             <Link
               key={link.name}
               href={link.href}
-              className="rounded-full px-5 py-2 text-sm font-medium text-slate-300 transition-all duration-300 hover:bg-white/10 hover:text-white"
+              className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 ${
+                pathname === link.href
+                  ? "bg-gradient-to-r from-indigo-500 to-cyan-400 text-white shadow-lg shadow-cyan-500/20"
+                  : "text-slate-300 hover:bg-white/10 hover:text-white"
+              }`}
             >
               {link.name}
             </Link>
@@ -72,7 +92,11 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="rounded-full px-5 py-2 text-sm font-medium text-slate-300 transition-all duration-300 hover:bg-white/10 hover:text-white"
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-all duration-300 ${
+                  pathname === link.href
+                    ? "bg-gradient-to-r from-indigo-500 to-cyan-400 text-white shadow-lg shadow-cyan-500/20"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                }`}
               >
                 {link.name}
               </Link>
@@ -98,8 +122,11 @@ export default function Navbar() {
               </Link>
             </>
           ) : (
-            <div className="group relative">
-              <button className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 transition-all hover:bg-white/10">
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 transition-all hover:bg-white/10"
+              >
                 <Image
                   src="/logo.png"
                   alt="user"
@@ -117,12 +144,20 @@ export default function Navbar() {
 
                 <ChevronDown
                   size={18}
-                  className="text-slate-400 transition-transform group-hover:rotate-180"
+                  className={`text-slate-400 transition-transform duration-300 ${
+                    dropdownOpen ? "rotate-180" : ""
+                  }`}
                 />
               </button>
 
               {/* DROPDOWN */}
-              <div className="invisible absolute right-0 mt-3 w-56 translate-y-3 rounded-2xl border border-white/10 bg-[#111827] p-3 opacity-0 shadow-2xl shadow-black/30 transition-all duration-300 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+              <div
+                className={`absolute right-0 mt-3 w-56 rounded-2xl border border-white/10 bg-[#111827] p-3 shadow-2xl shadow-black/30 transition-all duration-300 ${
+                  dropdownOpen
+                    ? "visible translate-y-0 opacity-100"
+                    : "invisible translate-y-3 opacity-0"
+                }`}
+              >
                 <div className="mb-3 border-b border-white/10 pb-3">
                   <p className="font-semibold text-white">{user?.name}</p>
                   <p className="text-sm text-slate-400"> {user?.email}</p>
@@ -139,7 +174,10 @@ export default function Navbar() {
                     </Link>
                   ))}
 
-                  <button className="mt-2 rounded-xl bg-red-500/10 px-3 py-2 text-left text-sm font-medium text-red-400 transition-all hover:bg-red-500/20">
+                  <button
+                    onClick={handleLogOut}
+                    className="mt-2 rounded-xl bg-red-500/10 px-3 py-2 text-left text-sm font-medium text-red-400 transition-all hover:bg-red-500/20"
+                  >
                     Logout
                   </button>
                 </div>
@@ -165,7 +203,11 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className="rounded-xl px-4 py-3 text-slate-300 transition-all hover:bg-white/10 hover:text-white"
+                className={`rounded-xl px-4 py-3 transition-all ${
+                  pathname === link.href
+                    ? "bg-gradient-to-r from-indigo-500 to-cyan-400 text-white"
+                    : "text-slate-300 hover:bg-white/10 hover:text-white"
+                }`}
                 onClick={() => setMobileOpen(false)}
               >
                 {link.name}

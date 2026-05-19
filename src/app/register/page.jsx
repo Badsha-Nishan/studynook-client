@@ -17,6 +17,7 @@ import {
 import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -52,12 +53,12 @@ export default function RegisterPage() {
     });
 
     if (data) {
-      alert("Success!");
+      toast.success("Account Created Successfully!");
       router.push("/login");
       router.refresh();
     }
     if (error) {
-      alert(`Failed! ${error.message}`);
+      toast.error(`Failed! ${error.message}`);
     }
   };
 
