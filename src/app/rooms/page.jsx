@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -14,57 +14,6 @@ import {
   Snowflake,
   ArrowRight,
 } from "lucide-react";
-
-const roomsData = [
-  {
-    id: 1,
-    name: "Quiet Focus Zone",
-    image:
-      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Peaceful environment designed for deep focus and distraction-free learning sessions.",
-    floor: "3rd Floor",
-    capacity: "2-4 People",
-    price: 5,
-    amenities: ["Wi-Fi", "Projector", "AC"],
-  },
-  {
-    id: 2,
-    name: "Creative Study Hub",
-    image:
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Modern collaborative room for brainstorming, discussions, and productive teamwork.",
-    floor: "5th Floor",
-    capacity: "4-8 People",
-    price: 8,
-    amenities: ["Wi-Fi", "Whiteboard", "Projector"],
-  },
-  {
-    id: 3,
-    name: "Minimal Reading Corner",
-    image:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Cozy and minimal room with calming interiors perfect for solo study and reading.",
-    floor: "2nd Floor",
-    capacity: "1-2 People",
-    price: 4,
-    amenities: ["Quiet Zone", "Wi-Fi", "Power Outlets"],
-  },
-  {
-    id: 4,
-    name: "Innovation Workspace",
-    image:
-      "https://images.unsplash.com/photo-1497366412874-3415097a27e7?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Premium study room equipped with modern facilities and a creative atmosphere.",
-    floor: "7th Floor",
-    capacity: "5-10 People",
-    price: 10,
-    amenities: ["AC", "Wi-Fi", "Projector"],
-  },
-];
 
 const filters = [
   "Wi-Fi",
@@ -82,9 +31,31 @@ const amenityIcons = {
 };
 
 export default function RoomsPage() {
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const [search, setSearch] = useState("");
   const [selectedFilters, setSelectedFilters] = useState([]);
 
+  // FETCH ROOMS
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/add-room");
+        const data = await res.json();
+
+        setRooms(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
+  // FILTER FUNCTION
   const handleFilterChange = (item) => {
     if (selectedFilters.includes(item)) {
       setSelectedFilters(selectedFilters.filter((f) => f !== item));
@@ -93,12 +64,16 @@ export default function RoomsPage() {
     }
   };
 
-  const filteredRooms = roomsData.filter((room) => {
-    const matchSearch = room.name.toLowerCase().includes(search.toLowerCase());
+  // FILTERED ROOMS
+  const filteredRooms = rooms.filter((room) => {
+    console.log(room);
+    const matchSearch = room?.roomName
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
 
     const matchFilters =
       selectedFilters.length === 0 ||
-      selectedFilters.every((filter) => room.amenities.includes(filter));
+      selectedFilters.every((filter) => room?.amenities?.includes(filter));
 
     return matchSearch && matchFilters;
   });
@@ -134,8 +109,7 @@ export default function RoomsPage() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-slate-400">
-            Discover modern, quiet, and fully equipped study environments
-            tailored for focused learning and collaboration.
+            Discover modern, quiet, and fully equipped study environments.
           </p>
         </div>
 
@@ -153,7 +127,7 @@ export default function RoomsPage() {
               placeholder="Search study rooms..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-14 pr-4 text-white outline-none transition-all placeholder:text-slate-500 focus:border-cyan-400"
+              className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-14 pr-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
             />
           </div>
 
@@ -186,8 +160,10 @@ export default function RoomsPage() {
           </div>
         </div>
 
-        {/* EMPTY STATE */}
-        {filteredRooms.length === 0 ? (
+        {/* LOADING */}
+        {loading ? (
+          <div className="text-center text-xl text-white">Loading...</div>
+        ) : filteredRooms.length === 0 ? (
           <div className="flex min-h-[350px] flex-col items-center justify-center rounded-[2rem] border border-white/10 bg-white/5 text-center backdrop-blur-xl">
             <h2 className="text-3xl font-bold text-white">No Rooms Found</h2>
 
@@ -196,11 +172,10 @@ export default function RoomsPage() {
             </p>
           </div>
         ) : (
-          /* ROOM GRID */
           <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
             {filteredRooms.map((room, index) => (
               <motion.div
-                key={room.id}
+                key={room._id}
                 initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{
@@ -214,40 +189,30 @@ export default function RoomsPage() {
                 <div className="relative overflow-hidden">
                   <img
                     src={room.image}
-                    alt={room.name}
+                    alt={room.roomName}
                     className="h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B1120] via-transparent to-transparent"></div>
-
-                  {/* PRICE */}
                   <div className="absolute right-5 top-5 rounded-2xl bg-cyan-400/20 px-4 py-2 text-sm font-bold text-cyan-300 backdrop-blur-md">
-                    ${room.price}/hr
+                    ${room.hourlyRate}/hr
                   </div>
                 </div>
 
                 {/* CONTENT */}
                 <div className="p-6">
-                  {/* TITLE */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="text-2xl font-bold text-white">
-                        {room.name}
-                      </h2>
+                  <h2 className="text-2xl font-bold text-white">
+                    {room.roomName}
+                  </h2>
 
-                      <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
-                        <MapPin size={15} />
-                        {room.floor}
-                      </div>
-                    </div>
+                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
+                    <MapPin size={15} />
+                    {room.floor}
                   </div>
 
-                  {/* DESCRIPTION */}
                   <p className="mt-5 line-clamp-3 leading-relaxed text-slate-400">
                     {room.description}
                   </p>
 
-                  {/* CAPACITY */}
                   <div className="mt-5 flex items-center gap-2 text-slate-300">
                     <Users size={18} className="text-cyan-300" />
 
@@ -256,7 +221,7 @@ export default function RoomsPage() {
 
                   {/* AMENITIES */}
                   <div className="mt-6 flex flex-wrap gap-2">
-                    {room.amenities.map((item, idx) => (
+                    {room?.amenities?.map((item, idx) => (
                       <div
                         key={idx}
                         className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300"
@@ -269,7 +234,7 @@ export default function RoomsPage() {
 
                   {/* BUTTON */}
                   <Link
-                    href={`/rooms/${room.id}`}
+                    href={`/rooms/${room._id}`}
                     className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-5 py-4 font-semibold text-white shadow-lg shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.02]"
                   >
                     View Details

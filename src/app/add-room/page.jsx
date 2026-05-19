@@ -33,7 +33,7 @@ export default function AddRoomPage() {
     }
   };
 
-  const handleAddRoom = (e) => {
+  const handleAddRoom = async (e) => {
     e.preventDefault();
 
     const form = e.target;
@@ -48,9 +48,19 @@ export default function AddRoomPage() {
       amenities: selectedAmenities,
     };
 
-    console.log(roomData);
+    // console.log(roomData);
 
     // API CALL HERE
+    const res = await fetch("http://localhost:5000/rooms", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(roomData),
+    });
+
+    const data = await res.json();
+    console.log(data);
   };
 
   return (
