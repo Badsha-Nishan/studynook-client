@@ -183,7 +183,7 @@ export default function RoomsPage() {
                   delay: index * 0.1,
                 }}
                 viewport={{ once: true }}
-                className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/30"
+                className="group overflow-hidden flex flex-col h-full rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/30"
               >
                 {/* IMAGE */}
                 <div className="relative overflow-hidden">
@@ -199,7 +199,7 @@ export default function RoomsPage() {
                 </div>
 
                 {/* CONTENT */}
-                <div className="p-6">
+                <div className="p-6 flex flex-col flex-grow">
                   <h2 className="text-2xl font-bold text-white">
                     {room.roomName}
                   </h2>
@@ -233,13 +233,15 @@ export default function RoomsPage() {
                   </div>
 
                   {/* BUTTON */}
-                  <Link
-                    href={`/rooms/${room._id}`}
-                    className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-5 py-4 font-semibold text-white shadow-lg shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.02]"
-                  >
-                    View Details
-                    <ArrowRight size={18} />
-                  </Link>
+                  <div className="mt-auto">
+                    <Link
+                      href={`/rooms/${room._id}`}
+                      className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-5 py-4 font-semibold text-white shadow-lg shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.02]"
+                    >
+                      View Details
+                      <ArrowRight size={18} />
+                    </Link>
+                  </div>
                 </div>
               </motion.div>
             ))}

@@ -90,7 +90,14 @@ export default function MyBookingsPage() {
                   className="border-b border-white/5 transition hover:bg-white/5"
                 >
                   {/* ROOM */}
-                  <td className="px-6 py-4 font-medium">{booking.roomName}</td>
+                  <td className="px-6 py-4 font-medium flex items-center gap-3">
+                    <img
+                      src={booking.image}
+                      alt="Image"
+                      className="w-12 h-12 rounded-full"
+                    />{" "}
+                    {booking.roomName}
+                  </td>
 
                   {/* DATE */}
                   <td className="px-6 py-4 text-slate-300">{booking.date}</td>

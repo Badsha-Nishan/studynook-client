@@ -21,7 +21,7 @@ import DeleteAlert from "@/components/DeleteAlert";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -52,6 +52,8 @@ export default function RoomDetailsPage({ params }) {
   const { data: session } = authClient.useSession();
   const user = session?.user;
   // console.log(user);
+
+  const router = useRouter();
 
   const { id } = use(params);
   const [room, setRoom] = useState(null);
@@ -108,11 +110,11 @@ export default function RoomDetailsPage({ params }) {
   };
 
   // BOOKING
+
   const handleBooking = async (e) => {
     e.preventDefault();
 
     const form = e.target;
-
     const date = form.date.value;
 
     const { _id, roomName, description, image, floor, capacity, hourlyRate } =
@@ -133,24 +135,32 @@ export default function RoomDetailsPage({ params }) {
       startTime,
       endTime,
       totalCost: calculateTotal(),
+      status: "confirmed",
     };
 
-    console.log(bookingData);
+    try {
+      const res = await fetch("http://localhost:5000/my-bookings", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
 
-    const res = await fetch("http://localhost:5000/my-bookings", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(bookingData),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "Booking failed! Time slot is taken.");
+        return;
+      }
 
-    // console.log(data);
+      toast.success("Room Booked Successfully!");
 
-    toast.success("Room Booking Successfully!");
-    redirect("/my-bookings");
+      router.push("/my-bookings");
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong with the connection.");
+    }
   };
 
   return (
