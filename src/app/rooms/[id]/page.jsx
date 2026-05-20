@@ -18,6 +18,8 @@ import {
 } from "lucide-react";
 import RoomEditModal from "@/components/RoomEditModal";
 import DeleteAlert from "@/components/DeleteAlert";
+import { authClient } from "@/lib/auth-client";
+import Link from "next/link";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -45,6 +47,10 @@ const timeSlots = [
 ];
 
 export default function RoomDetailsPage({ params }) {
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
+  // console.log(user);
+
   const { id } = use(params);
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -214,142 +220,161 @@ export default function RoomDetailsPage({ params }) {
             </div>
 
             {/* OWNER ACTIONS */}
-            <div className="mt-10 flex flex-wrap gap-4">
-              <RoomEditModal room={room} />
+            {user && (
+              <div className="mt-10 flex flex-wrap gap-4">
+                <RoomEditModal room={room} />
 
-              <DeleteAlert room={room} />
-            </div>
+                <DeleteAlert room={room} />
+              </div>
+            )}
           </motion.div>
         </div>
 
         {/* BOOKING FORM */}
-        <motion.div
-          initial={{ opacity: 0, y: 70 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="mt-20 overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 backdrop-blur-xl md:p-10"
-        >
-          {/* HEADER */}
-          <div className="mb-10">
-            <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
-              Reserve Your Slot
+
+        {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 70 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mt-20 overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 backdrop-blur-xl md:p-10"
+          >
+            {/* HEADER */}
+            <div className="mb-10">
+              <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
+                Reserve Your Slot
+              </div>
+
+              <h2 className="text-4xl font-black text-white">
+                Book This Study Room
+              </h2>
+
+              <p className="mt-4 text-lg text-slate-400">
+                Choose your preferred date and time slot.
+              </p>
             </div>
 
-            <h2 className="text-4xl font-black text-white">
-              Book This Study Room
-            </h2>
+            {/* FORM */}
+            <form
+              onSubmit={handleBooking}
+              className="grid gap-6 md:grid-cols-2"
+            >
+              {/* DATE */}
+              <div>
+                <label className="mb-3 block text-sm font-medium text-slate-300">
+                  Booking Date
+                </label>
 
-            <p className="mt-4 text-lg text-slate-400">
-              Choose your preferred date and time slot.
-            </p>
-          </div>
+                <div className="relative">
+                  <CalendarDays
+                    size={18}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                  />
 
-          {/* FORM */}
-          <form onSubmit={handleBooking} className="grid gap-6 md:grid-cols-2">
-            {/* DATE */}
-            <div>
-              <label className="mb-3 block text-sm font-medium text-slate-300">
-                Booking Date
-              </label>
+                  <input
+                    type="date"
+                    required
+                    min={new Date().toISOString().split("T")[0]}
+                    className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-white outline-none focus:border-cyan-400"
+                  />
+                </div>
+              </div>
 
-              <div className="relative">
-                <CalendarDays
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
-                />
+              {/* NOTE */}
+              <div>
+                <label className="mb-3 block text-sm font-medium text-slate-300">
+                  Special Note
+                </label>
 
                 <input
-                  type="date"
-                  required
-                  min={new Date().toISOString().split("T")[0]}
-                  className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 pl-12 pr-4 text-white outline-none focus:border-cyan-400"
+                  type="text"
+                  placeholder="Optional note..."
+                  className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
                 />
               </div>
-            </div>
 
-            {/* NOTE */}
-            <div>
-              <label className="mb-3 block text-sm font-medium text-slate-300">
-                Special Note
-              </label>
+              {/* START */}
+              <div>
+                <label className="mb-3 block text-sm font-medium text-slate-300">
+                  Start Time
+                </label>
 
-              <input
-                type="text"
-                placeholder="Optional note..."
-                className="h-14 w-full rounded-2xl border border-white/10 bg-white/5 px-4 text-white outline-none placeholder:text-slate-500 focus:border-cyan-400"
-              />
-            </div>
+                <select
+                  required
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] px-4 text-white outline-none focus:border-cyan-400"
+                >
+                  <option value="">Select Start Time</option>
 
-            {/* START */}
-            <div>
-              <label className="mb-3 block text-sm font-medium text-slate-300">
-                Start Time
-              </label>
-
-              <select
-                required
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] px-4 text-white outline-none focus:border-cyan-400"
-              >
-                <option value="">Select Start Time</option>
-
-                {timeSlots.map((slot, index) => (
-                  <option key={index} value={slot}>
-                    {slot}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* END */}
-            <div>
-              <label className="mb-3 block text-sm font-medium text-slate-300">
-                End Time
-              </label>
-
-              <select
-                required
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] px-4 text-white outline-none focus:border-cyan-400"
-              >
-                <option value="">Select End Time</option>
-
-                {timeSlots
-                  .filter((slot) => !startTime || slot > startTime)
-                  .map((slot, index) => (
+                  {timeSlots.map((slot, index) => (
                     <option key={index} value={slot}>
                       {slot}
                     </option>
                   ))}
-              </select>
-            </div>
-
-            {/* TOTAL */}
-            <div className="md:col-span-2">
-              <div className="rounded-[2rem] border border-cyan-400/20 bg-cyan-400/10 p-6">
-                <h3 className="text-lg font-semibold text-slate-300">
-                  Total Booking Cost
-                </h3>
-
-                <h2 className="mt-2 text-5xl font-black text-cyan-300">
-                  ${calculateTotal()}
-                </h2>
+                </select>
               </div>
-            </div>
 
-            {/* BUTTON */}
-            <div className="md:col-span-2">
-              <button
-                type="submit"
-                className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.01]"
-              >
-                Confirm Booking
-              </button>
-            </div>
-          </form>
-        </motion.div>
+              {/* END */}
+              <div>
+                <label className="mb-3 block text-sm font-medium text-slate-300">
+                  End Time
+                </label>
+
+                <select
+                  required
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] px-4 text-white outline-none focus:border-cyan-400"
+                >
+                  <option value="">Select End Time</option>
+
+                  {timeSlots
+                    .filter((slot) => !startTime || slot > startTime)
+                    .map((slot, index) => (
+                      <option key={index} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* TOTAL */}
+              <div className="md:col-span-2">
+                <div className="rounded-[2rem] border border-cyan-400/20 bg-cyan-400/10 p-6">
+                  <h3 className="text-lg font-semibold text-slate-300">
+                    Total Booking Cost
+                  </h3>
+
+                  <h2 className="mt-2 text-5xl font-black text-cyan-300">
+                    ${calculateTotal()}
+                  </h2>
+                </div>
+              </div>
+
+              {/* BUTTON */}
+              <div className="md:col-span-2">
+                <button
+                  type="submit"
+                  className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.01]"
+                >
+                  Book Now
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {!user && (
+          <div className="md:col-span-2 mt-7">
+            <Link
+              href={"/login"}
+              className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.01]"
+            >
+              Login to Book
+            </Link>
+          </div>
+        )}
       </div>
     </section>
   );

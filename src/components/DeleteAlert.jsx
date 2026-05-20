@@ -2,6 +2,7 @@
 import { AlertDialog, Button } from "@heroui/react";
 import { Trash2 } from "lucide-react";
 import { redirect } from "next/navigation";
+import toast from "react-hot-toast";
 
 const DeleteAlert = ({ room }) => {
   const handleDelete = async () => {
@@ -12,6 +13,8 @@ const DeleteAlert = ({ room }) => {
       },
     });
     const data = await res.json();
+
+    toast.success("Room Deleted Successfully.");
     redirect("/rooms");
   };
   return (
