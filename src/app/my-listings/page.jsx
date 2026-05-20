@@ -2,47 +2,34 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Pencil, Trash2, MapPin, Users, DollarSign, Plus } from "lucide-react";
-
-const myRooms = [
-  {
-    id: 1,
-    name: "Quiet Focus Zone",
-    image:
-      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
-    floor: "3rd Floor",
-    capacity: 4,
-    price: 5,
-    bookings: 18,
-  },
-  {
-    id: 2,
-    name: "Creative Study Hub",
-    image:
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1200&auto=format&fit=crop",
-    floor: "5th Floor",
-    capacity: 8,
-    price: 8,
-    bookings: 27,
-  },
-  {
-    id: 3,
-    name: "Minimal Reading Corner",
-    image:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
-    floor: "2nd Floor",
-    capacity: 2,
-    price: 4,
-    bookings: 12,
-  },
-];
+import { MapPin, Users, DollarSign, Plus, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export default function MyListingsPage() {
-  const handleDelete = (id) => {
-    console.log("Delete Room:", id);
+  const [rooms, setRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    // DELETE API HERE
-  };
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/add-room");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch rooms");
+        }
+
+        const data = await res.json();
+
+        setRooms(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRooms();
+  }, []);
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#0B1120] px-4 py-20">
@@ -76,8 +63,7 @@ export default function MyListingsPage() {
             </h1>
 
             <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-400">
-              View, edit, and manage all your listed study rooms from one
-              beautiful dashboard.
+              View all your listed study rooms beautifully in one place.
             </p>
           </div>
 
@@ -91,8 +77,13 @@ export default function MyListingsPage() {
           </Link>
         </div>
 
-        {/* EMPTY STATE */}
-        {myRooms.length === 0 ? (
+        {/* LOADING */}
+        {loading ? (
+          <div className="flex min-h-[300px] items-center justify-center">
+            <h2 className="text-2xl font-bold text-white">Loading rooms...</h2>
+          </div>
+        ) : rooms.length === 0 ? (
+          /* EMPTY STATE */
           <div className="flex min-h-[400px] flex-col items-center justify-center rounded-[2rem] border border-white/10 bg-white/5 text-center backdrop-blur-xl">
             <h2 className="text-3xl font-bold text-white">No Listings Found</h2>
 
@@ -110,9 +101,9 @@ export default function MyListingsPage() {
         ) : (
           /* ROOMS GRID */
           <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {myRooms.map((room, index) => (
+            {rooms.map((room, index) => (
               <motion.div
-                key={room.id}
+                key={room._id}
                 initial={{ opacity: 0, y: 60 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{
@@ -134,14 +125,16 @@ export default function MyListingsPage() {
 
                   {/* PRICE */}
                   <div className="absolute right-5 top-5 rounded-2xl bg-cyan-400/20 px-4 py-2 text-sm font-bold text-cyan-300 backdrop-blur-md">
-                    ${room.price}/hr
+                    ${room.hourlyRate}/hr
                   </div>
                 </div>
 
                 {/* CONTENT */}
                 <div className="p-6">
                   {/* TITLE */}
-                  <h2 className="text-2xl font-bold text-white">{room.name}</h2>
+                  <h2 className="text-2xl font-bold text-white">
+                    {room?.roomName}
+                  </h2>
 
                   {/* INFO */}
                   <div className="mt-5 space-y-3">
@@ -154,33 +147,24 @@ export default function MyListingsPage() {
                     <div className="flex items-center gap-3 text-slate-300">
                       <Users size={18} className="text-cyan-300" />
 
-                      <span>Capacity: {room.capacity} People</span>
+                      <span>{room.capacity}</span>
                     </div>
 
                     <div className="flex items-center gap-3 text-slate-300">
                       <DollarSign size={18} className="text-cyan-300" />
 
-                      <span>Total Bookings: {room.bookings}</span>
+                      <span>${room.hourlyRate} per hour</span>
                     </div>
                   </div>
 
-                  {/* ACTION BUTTONS */}
-                  <div className="mt-8 flex gap-4">
-                    {/* EDIT */}
-                    <button className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 font-semibold text-cyan-300 transition-all duration-300 hover:bg-cyan-400/20">
-                      <Pencil size={18} />
-                      Edit
-                    </button>
-
-                    {/* DELETE */}
-                    <button
-                      onClick={() => handleDelete(room.id)}
-                      className="flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-500/10 font-semibold text-red-300 transition-all duration-300 hover:bg-red-500/20"
-                    >
-                      <Trash2 size={18} />
-                      Delete
-                    </button>
-                  </div>
+                  {/* VIEW DETAILS BUTTON */}
+                  <Link
+                    href={`/rooms/${room._id}`}
+                    className="mt-8 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 font-semibold text-white shadow-lg shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    View Details
+                    <ArrowRight size={18} />
+                  </Link>
                 </div>
               </motion.div>
             ))}
