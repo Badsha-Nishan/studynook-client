@@ -11,8 +11,8 @@ import {
   DoorOpen,
   Check,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const amenitiesList = [
   "Whiteboard",
@@ -33,6 +33,44 @@ const RoomEditModal = ({ room }) => {
       );
     } else {
       setSelectedAmenities([...selectedAmenities, amenity]);
+    }
+  };
+
+  const router = useRouter();
+
+  const handleAddRoom = async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+
+    const roomData = {
+      roomName: form.roomName.value,
+      description: form.description.value,
+      image: form.image.value,
+      floor: form.floor.value,
+      capacity: form.capacity.value,
+      hourlyRate: form.hourlyRate.value,
+      amenities: selectedAmenities,
+    };
+
+    console.log(roomData);
+
+    // API CALL HERE
+    const res = await fetch(`http://localhost:5000/rooms/${room?._id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(roomData),
+    });
+
+    const data = await res.json();
+    console.log(data);
+
+    if (data) {
+      toast.success("Room Added Successfully.");
+      router.push("/rooms");
+      router.refresh();
     }
   };
 
@@ -64,7 +102,7 @@ const RoomEditModal = ({ room }) => {
               <Surface className="bg-[#134E8E]" variant="default">
                 <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl md:p-10">
                   <form
-                    // onSubmit={handleAddRoom}
+                    onSubmit={handleAddRoom}
                     className="grid gap-8 md:grid-cols-2 "
                   >
                     {/* ROOM NAME */}
@@ -245,7 +283,11 @@ const RoomEditModal = ({ room }) => {
                         >
                           Cancel
                         </Button>
-                        <Button className={"w-full mt-5"} type="submit">
+                        <Button
+                          className={"w-full mt-5"}
+                          slot="close"
+                          type="submit"
+                        >
                           Save Changes
                         </Button>
                       </Modal.Footer>
