@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import RoomEditModal from "@/components/RoomEditModal";
+import DeleteAlert from "@/components/DeleteAlert";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -214,13 +215,9 @@ export default function RoomDetailsPage({ params }) {
 
             {/* OWNER ACTIONS */}
             <div className="mt-10 flex flex-wrap gap-4">
-              
               <RoomEditModal room={room} />
 
-              <button className="flex items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-500/10 px-6 py-4 font-semibold text-red-300 transition-all duration-300 hover:bg-red-500/20">
-                <Trash2 size={18} />
-                Delete Room
-              </button>
+              <DeleteAlert room={room} />
             </div>
           </motion.div>
         </div>

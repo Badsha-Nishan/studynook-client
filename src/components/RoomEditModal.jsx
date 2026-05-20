@@ -68,7 +68,7 @@ const RoomEditModal = ({ room }) => {
     console.log(data);
 
     if (data) {
-      toast.success("Room Added Successfully.");
+      toast.success("Room Updated Successfully.");
       router.push("/rooms");
       router.refresh();
     }
