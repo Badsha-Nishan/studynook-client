@@ -10,45 +10,7 @@ import {
   Monitor,
   Snowflake,
 } from "lucide-react";
-
-const featuredRooms = [
-  {
-    id: 1,
-    name: "Quiet Focus Zone",
-    image:
-      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "A peaceful and distraction-free environment designed for deep focus and productive study sessions.",
-    floor: "3rd Floor",
-    capacity: "2–4 People",
-    price: 5,
-    amenities: ["Wi-Fi", "Projector", "AC"],
-  },
-  {
-    id: 2,
-    name: "Collaborative Study Hub",
-    image:
-      "https://images.unsplash.com/photo-1497366754035-f200968a6e72?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "Modern collaborative room perfect for team discussions, presentations, and brainstorming sessions.",
-    floor: "5th Floor",
-    capacity: "4–8 People",
-    price: 8,
-    amenities: ["Wi-Fi", "Whiteboard", "Projector"],
-  },
-  {
-    id: 3,
-    name: "Minimal Reading Corner",
-    image:
-      "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?q=80&w=1200&auto=format&fit=crop",
-    description:
-      "A cozy and minimalist study space with comfortable seating and a calm learning atmosphere.",
-    floor: "2nd Floor",
-    capacity: "1–2 People",
-    price: 4,
-    amenities: ["Quiet Zone", "Wi-Fi", "Power Outlets"],
-  },
-];
+import { useEffect, useState } from "react";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={14} />,
@@ -57,6 +19,32 @@ const amenityIcons = {
 };
 
 export default function FeaturedRooms() {
+  const [featuredRooms, setFeaturedRooms] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedRooms = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/add-room");
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch rooms");
+        }
+
+        const data = await res.json();
+
+        // only show first 3 rooms
+        setFeaturedRooms(data.slice(0, 3));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedRooms();
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-[#0F172A] py-24">
       {/* BG GLOW */}
@@ -89,86 +77,101 @@ export default function FeaturedRooms() {
           </Link>
         </div>
 
-        {/* ROOMS GRID */}
-        <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-          {featuredRooms.map((room, index) => (
-            <motion.div
-              key={room.id}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.15 }}
-              viewport={{ once: true }}
-              className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/30"
-            >
-              {/* IMAGE */}
-              <div className="relative overflow-hidden">
-                <img
-                  src={room.image}
-                  alt={room.name}
-                  className="h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
+        {/* LOADING */}
+        {loading ? (
+          <div className="flex min-h-[300px] items-center justify-center">
+            <h2 className="text-2xl font-bold text-white">
+              Loading featured rooms...
+            </h2>
+          </div>
+        ) : featuredRooms.length === 0 ? (
+          <div className="flex min-h-[300px] items-center justify-center rounded-[2rem] border border-white/10 bg-white/5">
+            <h2 className="text-2xl font-bold text-white">
+              No Rooms Available
+            </h2>
+          </div>
+        ) : (
+          /* ROOMS GRID */
+          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+            {featuredRooms.map((room, index) => (
+              <motion.div
+                key={room._id}
+                initial={{ opacity: 0, y: 60 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.15 }}
+                viewport={{ once: true }}
+                className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/30"
+              >
+                {/* IMAGE */}
+                <div className="relative overflow-hidden">
+                  <img
+                    src={room.image}
+                    alt={room.roomName}
+                    className="h-[260px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
 
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A] via-transparent to-transparent"></div>
 
-                {/* PRICE */}
-                <div className="absolute right-5 top-5 rounded-2xl bg-cyan-400/20 px-4 py-2 text-sm font-bold text-cyan-300 backdrop-blur-md">
-                  ${room.price}/hr
-                </div>
-              </div>
-
-              {/* CONTENT */}
-              <div className="p-6">
-                {/* TITLE */}
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="text-2xl font-bold text-white">
-                      {room.name}
-                    </h3>
-
-                    <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
-                      <MapPin size={15} />
-                      {room.floor}
-                    </div>
+                  {/* PRICE */}
+                  <div className="absolute right-5 top-5 rounded-2xl bg-cyan-400/20 px-4 py-2 text-sm font-bold text-cyan-300 backdrop-blur-md">
+                    ${room.hourlyRate}/hr
                   </div>
                 </div>
 
-                {/* DESCRIPTION */}
-                <p className="mt-5 line-clamp-3 leading-relaxed text-slate-400">
-                  {room.description}
-                </p>
+                {/* CONTENT */}
+                <div className="p-6">
+                  {/* TITLE */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-2xl font-bold text-white">
+                        {room.roomName}
+                      </h3>
 
-                {/* CAPACITY */}
-                <div className="mt-5 flex items-center gap-2 text-slate-300">
-                  <Users size={18} className="text-cyan-300" />
-
-                  <span className="text-sm">{room.capacity}</span>
-                </div>
-
-                {/* AMENITIES */}
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {room.amenities.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300"
-                    >
-                      {amenityIcons[item]}
-                      {item}
+                      <div className="mt-2 flex items-center gap-2 text-sm text-slate-400">
+                        <MapPin size={15} />
+                        {room.floor}
+                      </div>
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                {/* BUTTON */}
-                <Link
-                  href={`/rooms/${room.id}`}
-                  className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-5 py-4 font-semibold text-white shadow-lg shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.02]"
-                >
-                  View Details
-                  <ArrowRight size={18} />
-                </Link>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+                  {/* DESCRIPTION */}
+                  <p className="mt-5 line-clamp-3 leading-relaxed text-slate-400">
+                    {room.description}
+                  </p>
+
+                  {/* CAPACITY */}
+                  <div className="mt-5 flex items-center gap-2 text-slate-300">
+                    <Users size={18} className="text-cyan-300" />
+
+                    <span className="text-sm">{room.capacity}</span>
+                  </div>
+
+                  {/* AMENITIES */}
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {room.amenities?.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300"
+                      >
+                        {amenityIcons[item]}
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* BUTTON */}
+                  <Link
+                    href={`/rooms/${room._id}`}
+                    className="mt-7 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 px-5 py-4 font-semibold text-white shadow-lg shadow-cyan-500/10 transition-all duration-300 hover:scale-[1.02]"
+                  >
+                    View Details
+                    <ArrowRight size={18} />
+                  </Link>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

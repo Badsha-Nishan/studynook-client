@@ -16,6 +16,7 @@ import {
   Pencil,
   Trash2,
 } from "lucide-react";
+import RoomEditModal from "@/components/RoomEditModal";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -213,10 +214,8 @@ export default function RoomDetailsPage({ params }) {
 
             {/* OWNER ACTIONS */}
             <div className="mt-10 flex flex-wrap gap-4">
-              <button className="flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-6 py-4 font-semibold text-cyan-300 transition-all duration-300 hover:bg-cyan-400/20">
-                <Pencil size={18} />
-                Edit Room
-              </button>
+              
+              <RoomEditModal room={room} />
 
               <button className="flex items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-500/10 px-6 py-4 font-semibold text-red-300 transition-all duration-300 hover:bg-red-500/20">
                 <Trash2 size={18} />
