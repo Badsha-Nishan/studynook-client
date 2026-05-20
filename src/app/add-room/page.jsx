@@ -66,7 +66,7 @@ export default function AddRoomPage() {
     const data = await res.json();
 
     if (data) {
-      toast.success("Add Room Successful.");
+      toast.success("Room Added Successfully.");
       router.push("/rooms");
       router.refresh();
     }

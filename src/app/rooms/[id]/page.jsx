@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
 import {
   MapPin,
   Users,
@@ -18,30 +17,11 @@ import {
   Trash2,
 } from "lucide-react";
 
-const room = {
-  id: 1,
-  name: "Quiet Focus Zone",
-  image:
-    "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=1400&auto=format&fit=crop",
-  description:
-    "A premium distraction-free study environment designed for focused learning, online classes, reading sessions, and collaborative work. Equipped with modern facilities, comfortable seating, and a calm atmosphere for maximum productivity.",
-  floor: "3rd Floor",
-  capacity: "2-4 People",
-  hourlyRate: 5,
-  bookingCount: 24,
-  amenities: [
-    "Wi-Fi",
-    "Projector",
-    "Air Conditioning",
-    "Quiet Zone",
-    "Power Outlets",
-  ],
-};
-
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
   Projector: <Monitor size={18} />,
   "Air Conditioning": <Snowflake size={18} />,
+  AC: <Snowflake size={18} />,
   "Quiet Zone": <VolumeX size={18} />,
   "Power Outlets": <PlugZap size={18} />,
 };
@@ -62,19 +42,62 @@ const timeSlots = [
   "20:00",
 ];
 
-export default function RoomDetailsPage() {
+export default function RoomDetailsPage({ params }) {
+  const { id } = use(params);
+  const [room, setRoom] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
+  // FETCH ROOM DETAILS
+  useEffect(() => {
+    const fetchRoom = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/rooms/${id}`);
+
+        const data = await res.json();
+
+        setRoom(data);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoom();
+  }, [id]);
+
+  // LOADING
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-3xl font-bold text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  // NO ROOM
+  if (!room) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-3xl font-bold text-red-400">
+        Room Not Found
+      </div>
+    );
+  }
+
+  // TOTAL PRICE
   const calculateTotal = () => {
     if (!startTime || !endTime) return 0;
 
     const start = parseInt(startTime.split(":")[0]);
     const end = parseInt(endTime.split(":")[0]);
 
-    return (end - start) * room.hourlyRate;
+    return (end - start) * room?.hourlyRate;
   };
 
+  // BOOKING
   const handleBooking = (e) => {
     e.preventDefault();
 
@@ -111,8 +134,8 @@ export default function RoomDetailsPage() {
             className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 backdrop-blur-xl"
           >
             <img
-              src={room.image}
-              alt={room.name}
+              src={room?.image}
+              alt={room?.roomName}
               className="h-full w-full object-cover"
             />
           </motion.div>
@@ -132,7 +155,7 @@ export default function RoomDetailsPage() {
 
               {/* TITLE */}
               <h1 className="text-4xl font-black text-white md:text-5xl">
-                {room.name}
+                {room?.roomName}
               </h1>
 
               {/* INFO */}
@@ -140,29 +163,29 @@ export default function RoomDetailsPage() {
                 <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
                   <MapPin size={18} className="text-cyan-300" />
 
-                  {room.floor}
+                  {room?.floor}
                 </div>
 
                 <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
                   <Users size={18} className="text-cyan-300" />
 
-                  {room.capacity}
+                  {room?.capacity}
                 </div>
 
                 <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
                   <DollarSign size={18} className="text-cyan-300" />$
-                  {room.hourlyRate}/hr
+                  {room?.hourlyRate}/hr
                 </div>
               </div>
 
               {/* DESCRIPTION */}
               <p className="mt-8 text-lg leading-relaxed text-slate-400">
-                {room.description}
+                {room?.description}
               </p>
 
-              {/* BOOKING COUNT */}
+              {/* BOOKINGS */}
               <div className="mt-8 inline-flex rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-cyan-300">
-                {room.bookingCount} Bookings Completed
+                {room?.bookingCount || 0} Bookings Completed
               </div>
 
               {/* AMENITIES */}
@@ -172,7 +195,7 @@ export default function RoomDetailsPage() {
                 </h3>
 
                 <div className="flex flex-wrap gap-4">
-                  {room.amenities.map((item, index) => (
+                  {room?.amenities?.map((item, index) => (
                     <div
                       key={index}
                       className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-slate-300"
@@ -190,12 +213,12 @@ export default function RoomDetailsPage() {
 
             {/* OWNER ACTIONS */}
             <div className="mt-10 flex flex-wrap gap-4">
-              <button className="flex h-13 items-center justify-center gap-2 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-6 font-semibold text-cyan-300 transition-all duration-300 hover:bg-cyan-400/20">
+              <button className="flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-6 py-4 font-semibold text-cyan-300 transition-all duration-300 hover:bg-cyan-400/20">
                 <Pencil size={18} />
                 Edit Room
               </button>
 
-              <button className="flex h-13 items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-500/10 px-6 font-semibold text-red-300 transition-all duration-300 hover:bg-red-500/20">
+              <button className="flex items-center justify-center gap-2 rounded-2xl border border-red-400/20 bg-red-500/10 px-6 py-4 font-semibold text-red-300 transition-all duration-300 hover:bg-red-500/20">
                 <Trash2 size={18} />
                 Delete Room
               </button>
@@ -248,7 +271,7 @@ export default function RoomDetailsPage() {
               </div>
             </div>
 
-            {/* SPECIAL NOTE */}
+            {/* NOTE */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Special Note
@@ -261,64 +284,50 @@ export default function RoomDetailsPage() {
               />
             </div>
 
-            {/* START TIME */}
+            {/* START */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Start Time
               </label>
 
-              <div className="relative">
-                <Clock3
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
-                />
+              <select
+                required
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] px-4 text-white outline-none focus:border-cyan-400"
+              >
+                <option value="">Select Start Time</option>
 
-                <select
-                  required
-                  value={startTime}
-                  onChange={(e) => setStartTime(e.target.value)}
-                  className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] pl-12 pr-4 text-white outline-none focus:border-cyan-400"
-                >
-                  <option value="">Select Start Time</option>
-
-                  {timeSlots.map((slot, index) => (
-                    <option key={index} value={slot}>
-                      {slot}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                {timeSlots.map((slot, index) => (
+                  <option key={index} value={slot}>
+                    {slot}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* END TIME */}
+            {/* END */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 End Time
               </label>
 
-              <div className="relative">
-                <Clock3
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
-                />
+              <select
+                required
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] px-4 text-white outline-none focus:border-cyan-400"
+              >
+                <option value="">Select End Time</option>
 
-                <select
-                  required
-                  value={endTime}
-                  onChange={(e) => setEndTime(e.target.value)}
-                  className="h-14 w-full rounded-2xl border border-white/10 bg-[#111827] pl-12 pr-4 text-white outline-none focus:border-cyan-400"
-                >
-                  <option value="">Select End Time</option>
-
-                  {timeSlots
-                    .filter((slot) => !startTime || slot > startTime)
-                    .map((slot, index) => (
-                      <option key={index} value={slot}>
-                        {slot}
-                      </option>
-                    ))}
-                </select>
-              </div>
+                {timeSlots
+                  .filter((slot) => !startTime || slot > startTime)
+                  .map((slot, index) => (
+                    <option key={index} value={slot}>
+                      {slot}
+                    </option>
+                  ))}
+              </select>
             </div>
 
             {/* TOTAL */}
