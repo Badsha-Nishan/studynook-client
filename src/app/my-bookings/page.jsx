@@ -1,37 +1,64 @@
 "use client";
 
+import { authClient } from "@/lib/auth-client";
 import { Trash2 } from "lucide-react";
-
-const bookings = [
-  {
-    id: 1,
-    room: "Quiet Focus Zone",
-    date: "22 May 2026",
-    time: "10:00 - 13:00",
-    cost: 15,
-    status: "confirmed",
-  },
-  {
-    id: 2,
-    room: "Creative Study Hub",
-    date: "25 May 2026",
-    time: "14:00 - 17:00",
-    cost: 24,
-    status: "confirmed",
-  },
-  {
-    id: 3,
-    room: "Minimal Reading Corner",
-    date: "15 May 2026",
-    time: "09:00 - 11:00",
-    cost: 8,
-    status: "cancelled",
-  },
-];
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function MyBookingsPage() {
-  const handleCancel = (id) => {
-    console.log("Cancel booking:", id);
+  const { data: session } = authClient.useSession();
+
+  const user = session?.user;
+
+  const [bookings, setBookings] = useState([]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const fetchBookings = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/my-bookings/${user.id}`);
+
+        const data = await res.json();
+
+        setBookings(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchBookings();
+  }, [user?.id]);
+
+  // CANCEL BOOKING
+  const handleCancel = async (id) => {
+    const confirmDelete = confirm(
+      "Are you sure you want to cancel this booking?"
+    );
+
+    if (!confirmDelete) {
+      toast.error("Booking cancellation aborted");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/my-bookings/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (data.deletedCount > 0) {
+        // remove from ui instantly
+        const remaining = bookings.filter((booking) => booking._id !== id);
+
+        setBookings(remaining);
+
+        toast.success("Booking cancelled successfully!");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -39,6 +66,7 @@ export default function MyBookingsPage() {
       <div className="mx-auto max-w-6xl">
         {/* HEADER */}
         <h1 className="text-4xl font-bold md:text-5xl">My Bookings</h1>
+
         <p className="mt-3 text-slate-400">Manage your booked study rooms</p>
 
         {/* TABLE */}
@@ -56,51 +84,43 @@ export default function MyBookingsPage() {
             </thead>
 
             <tbody>
-              {bookings.map((b) => (
+              {bookings.map((booking) => (
                 <tr
-                  key={b.id}
-                  className="border-b border-white/5 hover:bg-white/5 transition"
+                  key={booking._id}
+                  className="border-b border-white/5 transition hover:bg-white/5"
                 >
                   {/* ROOM */}
-                  <td className="px-6 py-4 font-medium">{b.room}</td>
+                  <td className="px-6 py-4 font-medium">{booking.roomName}</td>
 
                   {/* DATE */}
-                  <td className="px-6 py-4 text-slate-300">{b.date}</td>
+                  <td className="px-6 py-4 text-slate-300">{booking.date}</td>
 
                   {/* TIME */}
-                  <td className="px-6 py-4 text-slate-300">{b.time}</td>
+                  <td className="px-6 py-4 text-slate-300">
+                    {booking.startTime} - {booking.endTime}
+                  </td>
 
                   {/* COST */}
-                  <td className="px-6 py-4 text-cyan-300 font-semibold">
-                    ${b.cost}
+                  <td className="px-6 py-4 font-semibold text-cyan-300">
+                    ${booking.totalCost}
                   </td>
 
                   {/* STATUS */}
                   <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-sm font-medium ${
-                        b.status === "confirmed"
-                          ? "bg-green-500/10 text-green-400"
-                          : "bg-red-500/10 text-red-400"
-                      }`}
-                    >
-                      {b.status}
+                    <span className="rounded-full bg-green-500/10 px-3 py-1 text-sm font-medium text-green-400">
+                      confirmed
                     </span>
                   </td>
 
                   {/* ACTION */}
                   <td className="px-6 py-4">
-                    {b.status === "confirmed" ? (
-                      <button
-                        onClick={() => handleCancel(b.id)}
-                        className="flex items-center gap-2 rounded-lg bg-red-500/10 px-3 py-2 text-red-400 hover:bg-red-500/20 transition"
-                      >
-                        <Trash2 size={16} />
-                        Cancel
-                      </button>
-                    ) : (
-                      <span className="text-slate-500 text-sm">—</span>
-                    )}
+                    <button
+                      onClick={() => handleCancel(booking._id)}
+                      className="flex items-center gap-2 rounded-xl bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/20"
+                    >
+                      <Trash2 size={16} />
+                      Cancel
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -108,7 +128,7 @@ export default function MyBookingsPage() {
           </table>
         </div>
 
-        {/* EMPTY NOTE */}
+        {/* EMPTY STATE */}
         {bookings.length === 0 && (
           <div className="mt-10 text-center text-slate-400">
             You have no bookings yet.

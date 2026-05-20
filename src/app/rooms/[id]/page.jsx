@@ -20,6 +20,8 @@ import RoomEditModal from "@/components/RoomEditModal";
 import DeleteAlert from "@/components/DeleteAlert";
 import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
+import toast from "react-hot-toast";
+import { redirect } from "next/navigation";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -106,10 +108,49 @@ export default function RoomDetailsPage({ params }) {
   };
 
   // BOOKING
-  const handleBooking = (e) => {
+  const handleBooking = async (e) => {
     e.preventDefault();
 
-    console.log("Booking Submitted");
+    const form = e.target;
+
+    const date = form.date.value;
+
+    const { _id, roomName, description, image, floor, capacity, hourlyRate } =
+      room;
+
+    const bookingData = {
+      userId: user.id,
+      userImage: user.image,
+      userName: user.name,
+      roomId: _id,
+      roomName,
+      description,
+      image,
+      floor,
+      capacity,
+      hourlyRate,
+      date,
+      startTime,
+      endTime,
+      totalCost: calculateTotal(),
+    };
+
+    console.log(bookingData);
+
+    const res = await fetch("http://localhost:5000/my-bookings", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(bookingData),
+    });
+
+    const data = await res.json();
+
+    // console.log(data);
+
+    toast.success("Room Booking Successfully!");
+    redirect("/my-bookings");
   };
 
   return (
@@ -272,6 +313,7 @@ export default function RoomDetailsPage({ params }) {
                   />
 
                   <input
+                    name="date"
                     type="date"
                     required
                     min={new Date().toISOString().split("T")[0]}
