@@ -15,6 +15,8 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+
+
 const filters = [
   "Wi-Fi",
   "Projector",
@@ -66,7 +68,7 @@ export default function RoomsPage() {
 
   // FILTERED ROOMS
   const filteredRooms = rooms.filter((room) => {
-    console.log(room);
+    // console.log(room);
     const matchSearch = room?.roomName
       ?.toLowerCase()
       .includes(search.toLowerCase());

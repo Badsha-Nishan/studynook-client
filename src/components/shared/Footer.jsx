@@ -42,21 +42,21 @@ export default function Footer() {
             {/* SOCIALS */}
             <div className="mt-6 flex items-center gap-3">
               <Link
-                href="#"
+                href="https://www.facebook.com/badsha.nishan"
                 className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 hover:text-white"
               >
                 <FaFacebookF size={18} />
               </Link>
 
               <Link
-                href="#"
+                href="https://x.com/Badsha2Nishan"
                 className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 hover:text-white"
               >
                 <FaXTwitter size={18} />
               </Link>
 
               <Link
-                href="#"
+                href="https://www.linkedin.com/in/badsha-nishan"
                 className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 hover:text-white"
               >
                 <FaLinkedinIn size={18} />

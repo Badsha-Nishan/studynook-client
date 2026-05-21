@@ -5,6 +5,8 @@ import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
+
+
 export default function MyBookingsPage() {
   const { data: session } = authClient.useSession();
 

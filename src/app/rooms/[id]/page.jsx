@@ -12,16 +12,16 @@ import {
   VolumeX,
   PlugZap,
   CalendarDays,
-  Clock3,
-  Pencil,
-  Trash2,
 } from "lucide-react";
+
 import RoomEditModal from "@/components/RoomEditModal";
 import DeleteAlert from "@/components/DeleteAlert";
 import { authClient } from "@/lib/auth-client";
+
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import getToken from "@/components/getToken";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -49,13 +49,14 @@ const timeSlots = [
 ];
 
 export default function RoomDetailsPage({ params }) {
-  const { data: session } = authClient.useSession();
-  const user = session?.user;
-  // console.log(user);
+  const { id } = use(params);
 
   const router = useRouter();
 
-  const { id } = use(params);
+  const { data: session } = authClient.useSession();
+
+  const user = session?.user;
+
   const [room, setRoom] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -64,9 +65,18 @@ export default function RoomDetailsPage({ params }) {
 
   // FETCH ROOM DETAILS
   useEffect(() => {
+    if (!id) return;
+
     const fetchRoom = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/rooms/${id}`);
+        setLoading(true);
+        const token = await getToken();
+
+        const res = await fetch(`http://localhost:5000/rooms/${id}`, {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        });
 
         const data = await res.json();
 
@@ -110,11 +120,16 @@ export default function RoomDetailsPage({ params }) {
   };
 
   // BOOKING
-
   const handleBooking = async (e) => {
     e.preventDefault();
 
+    if (!user) {
+      toast.error("Please login first");
+      return;
+    }
+
     const form = e.target;
+
     const date = form.date.value;
 
     const { _id, roomName, description, image, floor, capacity, hourlyRate } =
@@ -150,7 +165,7 @@ export default function RoomDetailsPage({ params }) {
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.message || "Booking failed! Time slot is taken.");
+        toast.error(data.message || "Booking failed!");
         return;
       }
 
@@ -158,8 +173,9 @@ export default function RoomDetailsPage({ params }) {
 
       router.push("/my-bookings");
     } catch (error) {
-      console.error(error);
-      toast.error("Something went wrong with the connection.");
+      console.log(error);
+
+      toast.error("Something went wrong!");
     }
   };
 
@@ -221,13 +237,11 @@ export default function RoomDetailsPage({ params }) {
               <div className="mt-6 flex flex-wrap gap-5">
                 <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
                   <MapPin size={18} className="text-cyan-300" />
-
                   {room?.floor}
                 </div>
 
                 <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
                   <Users size={18} className="text-cyan-300" />
-
                   {room?.capacity}
                 </div>
 
@@ -282,8 +296,7 @@ export default function RoomDetailsPage({ params }) {
         </div>
 
         {/* BOOKING FORM */}
-
-        {user && (
+        {user ? (
           <motion.div
             initial={{ opacity: 0, y: 70 }}
             animate={{ opacity: 1, y: 0 }}
@@ -415,12 +428,10 @@ export default function RoomDetailsPage({ params }) {
               </div>
             </form>
           </motion.div>
-        )}
-
-        {!user && (
-          <div className="md:col-span-2 mt-7">
+        ) : (
+          <div className="mt-10">
             <Link
-              href={"/login"}
+              href="/login"
               className="flex h-14 w-full items-center justify-center rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.01]"
             >
               Login to Book

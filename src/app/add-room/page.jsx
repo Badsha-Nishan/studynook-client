@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import getToken from "@/components/getToken";
+import { authClient } from "@/lib/auth-client";
 
 const amenitiesList = [
   "Whiteboard",
@@ -54,11 +56,15 @@ export default function AddRoomPage() {
 
     // console.log(roomData);
 
-    // API CALL HERE
+    // const token = await getToken();
+
+    const { data: tokenData } = await authClient.token();
+
     const res = await fetch("http://localhost:5000/rooms", {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        authorization: `Bearer ${tokenData?.token}`,
       },
       body: JSON.stringify(roomData),
     });
