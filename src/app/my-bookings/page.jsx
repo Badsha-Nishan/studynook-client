@@ -5,8 +5,6 @@ import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
-
-
 export default function MyBookingsPage() {
   const { data: session } = authClient.useSession();
 
@@ -44,8 +42,13 @@ export default function MyBookingsPage() {
     }
 
     try {
+      const { data: tokenData } = await authClient.token();
       const res = await fetch(`http://localhost:5000/my-bookings/${id}`, {
         method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${tokenData?.token}`,
+        },
       });
 
       const data = await res.json();
@@ -96,7 +99,7 @@ export default function MyBookingsPage() {
                     <img
                       src={booking.image}
                       alt="Image"
-                      className="w-12 h-12 rounded-full"
+                      className="w-12 h-12 rounded-full object-cover"
                     />{" "}
                     {booking.roomName}
                   </td>

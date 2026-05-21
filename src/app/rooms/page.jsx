@@ -15,8 +15,6 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-
-
 const filters = [
   "Wi-Fi",
   "Projector",
