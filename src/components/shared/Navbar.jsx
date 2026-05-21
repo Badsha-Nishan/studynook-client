@@ -128,8 +128,8 @@ export default function Navbar() {
                 className="flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-3 py-2 transition-all hover:bg-white/10"
               >
                 <Image
-                  src="/logo.png"
-                  alt="user"
+                  src={user?.image || "/logo.png"}
+                  alt={user?.name}
                   width={40}
                   height={40}
                   className="h-10 w-10 rounded-full object-cover"

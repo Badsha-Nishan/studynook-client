@@ -70,12 +70,14 @@ export default function RoomDetailsPage({ params }) {
     const fetchRoom = async () => {
       try {
         setLoading(true);
-        const token = await getToken();
+        const token = user ? await getToken() : null;
 
         const res = await fetch(`http://localhost:5000/rooms/${id}`, {
-          headers: {
-            authorization: `Bearer ${token}`,
-          },
+          headers: token
+            ? {
+                authorization: `Bearer ${token}`,
+              }
+            : {},
         });
 
         const data = await res.json();
