@@ -21,6 +21,7 @@ import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import useTitle from "@/components/shared/useTitle";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -48,6 +49,7 @@ const timeSlots = [
 ];
 
 export default function RoomDetailsPage({ params }) {
+  useTitle("StudyNook | Room Details");
   const { id } = use(params);
 
   const router = useRouter();
@@ -62,7 +64,6 @@ export default function RoomDetailsPage({ params }) {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
-  // FETCH ROOM DETAILS
   useEffect(() => {
     if (!id) return;
 
@@ -97,7 +98,6 @@ export default function RoomDetailsPage({ params }) {
     fetchRoom();
   }, [id]);
 
-  // LOADING
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-3xl font-bold text-white">
@@ -106,7 +106,6 @@ export default function RoomDetailsPage({ params }) {
     );
   }
 
-  // NO ROOM
   if (!room) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#0B1120] text-3xl font-bold text-red-400">
@@ -115,7 +114,6 @@ export default function RoomDetailsPage({ params }) {
     );
   }
 
-  // TOTAL PRICE
   const calculateTotal = () => {
     if (!startTime || !endTime) return 0;
 
@@ -125,7 +123,6 @@ export default function RoomDetailsPage({ params }) {
     return (end - start) * room?.hourlyRate;
   };
 
-  // BOOKING
   const handleBooking = async (e) => {
     e.preventDefault();
 
@@ -161,13 +158,21 @@ export default function RoomDetailsPage({ params }) {
     };
 
     try {
+      const { data: tokenData } = await authClient.token();
+      const token = tokenData?.token;
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_SERVER_URL}/my-bookings`,
         {
           method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
+
+          headers: token
+            ? {
+                "content-type": "application/json",
+                authorization: `Bearer ${token}`,
+              }
+            : { "content-type": "application/json" },
+
           body: JSON.stringify(bookingData),
         }
       );
@@ -191,12 +196,10 @@ export default function RoomDetailsPage({ params }) {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#0B1120] px-4 py-20">
-      {/* BG EFFECTS */}
       <div className="absolute left-[-100px] top-[-100px] h-[300px] w-[300px] rounded-full bg-cyan-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-100px] right-[-100px] h-[300px] w-[300px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
-      {/* GRID */}
       <div className="absolute inset-0 opacity-[0.04]">
         <div
           className="h-full w-full"
@@ -209,9 +212,7 @@ export default function RoomDetailsPage({ params }) {
       </div>
 
       <div className="relative mx-auto max-w-7xl">
-        {/* TOP GRID */}
         <div className="grid gap-10 lg:grid-cols-2">
-          {/* IMAGE */}
           <motion.div
             initial={{ opacity: 0, x: -70 }}
             animate={{ opacity: 1, x: 0 }}
@@ -225,7 +226,6 @@ export default function RoomDetailsPage({ params }) {
             />
           </motion.div>
 
-          {/* DETAILS */}
           <motion.div
             initial={{ opacity: 0, x: 70 }}
             animate={{ opacity: 1, x: 0 }}
@@ -233,17 +233,14 @@ export default function RoomDetailsPage({ params }) {
             className="flex flex-col justify-between"
           >
             <div>
-              {/* BADGE */}
               <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
                 Premium Study Space
               </div>
 
-              {/* TITLE */}
               <h1 className="text-4xl font-black text-white md:text-5xl">
                 {room?.roomName}
               </h1>
 
-              {/* INFO */}
               <div className="mt-6 flex flex-wrap gap-5">
                 <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-slate-300">
                   <MapPin size={18} className="text-cyan-300" />
@@ -261,17 +258,14 @@ export default function RoomDetailsPage({ params }) {
                 </div>
               </div>
 
-              {/* DESCRIPTION */}
               <p className="mt-8 text-lg leading-relaxed text-slate-400">
                 {room?.description}
               </p>
 
-              {/* BOOKINGS */}
               <div className="mt-8 inline-flex rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-5 py-3 text-cyan-300">
                 {room?.bookingCount || 0} Bookings Completed
               </div>
 
-              {/* AMENITIES */}
               <div className="mt-10">
                 <h3 className="mb-5 text-2xl font-bold text-white">
                   Amenities
@@ -294,18 +288,14 @@ export default function RoomDetailsPage({ params }) {
               </div>
             </div>
 
-            {/* OWNER ACTIONS */}
-            {user && (
-              <div className="mt-10 flex flex-wrap gap-4">
-                <RoomEditModal room={room} />
+            <div className="mt-10 flex flex-wrap gap-4">
+              <RoomEditModal room={room} />
 
-                <DeleteAlert room={room} />
-              </div>
-            )}
+              <DeleteAlert room={room} />
+            </div>
           </motion.div>
         </div>
 
-        {/* BOOKING FORM */}
         {user ? (
           <motion.div
             initial={{ opacity: 0, y: 70 }}
@@ -313,7 +303,6 @@ export default function RoomDetailsPage({ params }) {
             transition={{ duration: 0.6 }}
             className="mt-20 overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 backdrop-blur-xl md:p-10"
           >
-            {/* HEADER */}
             <div className="mb-10">
               <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
                 Reserve Your Slot
@@ -328,12 +317,10 @@ export default function RoomDetailsPage({ params }) {
               </p>
             </div>
 
-            {/* FORM */}
             <form
               onSubmit={handleBooking}
               className="grid gap-6 md:grid-cols-2"
             >
-              {/* DATE */}
               <div>
                 <label className="mb-3 block text-sm font-medium text-slate-300">
                   Booking Date
@@ -355,7 +342,6 @@ export default function RoomDetailsPage({ params }) {
                 </div>
               </div>
 
-              {/* NOTE */}
               <div>
                 <label className="mb-3 block text-sm font-medium text-slate-300">
                   Special Note
@@ -368,7 +354,6 @@ export default function RoomDetailsPage({ params }) {
                 />
               </div>
 
-              {/* START */}
               <div>
                 <label className="mb-3 block text-sm font-medium text-slate-300">
                   Start Time
@@ -390,7 +375,6 @@ export default function RoomDetailsPage({ params }) {
                 </select>
               </div>
 
-              {/* END */}
               <div>
                 <label className="mb-3 block text-sm font-medium text-slate-300">
                   End Time
@@ -414,7 +398,6 @@ export default function RoomDetailsPage({ params }) {
                 </select>
               </div>
 
-              {/* TOTAL */}
               <div className="md:col-span-2">
                 <div className="rounded-[2rem] border border-cyan-400/20 bg-cyan-400/10 p-6">
                   <h3 className="text-lg font-semibold text-slate-300">
@@ -427,7 +410,6 @@ export default function RoomDetailsPage({ params }) {
                 </div>
               </div>
 
-              {/* BUTTON */}
               <div className="md:col-span-2">
                 <button
                   type="submit"

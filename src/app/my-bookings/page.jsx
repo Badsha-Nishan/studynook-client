@@ -1,11 +1,13 @@
 "use client";
 
+import useTitle from "@/components/shared/useTitle";
 import { authClient } from "@/lib/auth-client";
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function MyBookingsPage() {
+  useTitle("StudyNook | My Bookings");
   const { data: session } = authClient.useSession();
 
   const user = session?.user;
@@ -39,7 +41,6 @@ export default function MyBookingsPage() {
     fetchBookings();
   }, [user?.id]);
 
-  // CANCEL BOOKING
   const handleCancel = async (id) => {
     const confirmDelete = confirm(
       "Are you sure you want to cancel this booking?"
@@ -66,7 +67,6 @@ export default function MyBookingsPage() {
       const data = await res.json();
 
       if (data.deletedCount > 0) {
-        // remove from ui instantly
         const remaining = bookings.filter((booking) => booking._id !== id);
 
         setBookings(remaining);
@@ -81,12 +81,10 @@ export default function MyBookingsPage() {
   return (
     <section className="min-h-screen bg-[#0B1120] px-4 py-20 text-white">
       <div className="mx-auto max-w-6xl">
-        {/* HEADER */}
         <h1 className="text-4xl font-bold md:text-5xl">My Bookings</h1>
 
         <p className="mt-3 text-slate-400">Manage your booked study rooms</p>
 
-        {/* TABLE */}
         <div className="mt-10 overflow-x-auto rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl">
           <table className="w-full min-w-[800px] text-left">
             <thead className="border-b border-white/10 bg-white/5">
@@ -106,7 +104,6 @@ export default function MyBookingsPage() {
                   key={booking._id}
                   className="border-b border-white/5 transition hover:bg-white/5"
                 >
-                  {/* ROOM */}
                   <td className="px-6 py-4 font-medium flex items-center gap-3">
                     <img
                       src={booking.image}
@@ -116,27 +113,22 @@ export default function MyBookingsPage() {
                     {booking.roomName}
                   </td>
 
-                  {/* DATE */}
                   <td className="px-6 py-4 text-slate-300">{booking.date}</td>
 
-                  {/* TIME */}
                   <td className="px-6 py-4 text-slate-300">
                     {booking.startTime} - {booking.endTime}
                   </td>
 
-                  {/* COST */}
                   <td className="px-6 py-4 font-semibold text-cyan-300">
                     ${booking.totalCost}
                   </td>
 
-                  {/* STATUS */}
                   <td className="px-6 py-4">
                     <span className="rounded-full bg-green-500/10 px-3 py-1 text-sm font-medium text-green-400">
                       confirmed
                     </span>
                   </td>
 
-                  {/* ACTION */}
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleCancel(booking._id)}
@@ -152,7 +144,6 @@ export default function MyBookingsPage() {
           </table>
         </div>
 
-        {/* EMPTY STATE */}
         {bookings.length === 0 && (
           <div className="mt-10 text-center text-slate-400">
             You have no bookings yet.

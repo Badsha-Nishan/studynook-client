@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-
+import useTitle from "@/components/shared/useTitle";
 
 export default function NotFound() {
+  useTitle("StudyNook | Not Found");
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0B1120] px-4">
       {/* BG GLOW */}

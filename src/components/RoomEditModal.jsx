@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 const amenitiesList = [
   "Whiteboard",
@@ -53,7 +54,7 @@ const RoomEditModal = ({ room }) => {
       amenities: selectedAmenities,
     };
 
-    console.log(roomData);
+    const { data: tokenData } = await authClient.token();
 
     // API CALL HERE
     const res = await fetch(
@@ -62,18 +63,20 @@ const RoomEditModal = ({ room }) => {
         method: "PATCH",
         headers: {
           "content-type": "application/json",
+          authorization: `Bearer ${tokenData?.token}`,
         },
         body: JSON.stringify(roomData),
       }
     );
 
     const data = await res.json();
-    console.log(data);
 
-    if (data) {
-      toast.success("Room Updated Successfully.");
+    if (res.ok) {
+      toast.success("Room Updated successfully");
       router.push("/rooms");
       router.refresh();
+    } else {
+      toast.error(data.message || "Update failed");
     }
   };
 

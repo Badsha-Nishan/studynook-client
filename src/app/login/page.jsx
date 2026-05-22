@@ -7,10 +7,10 @@ import { FcGoogle } from "react-icons/fc";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
-
+import useTitle from "@/components/shared/useTitle";
 
 export default function LoginPage() {
+  useTitle("StudyNook | Login");
   const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
@@ -43,12 +43,10 @@ export default function LoginPage() {
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0B1120] px-4 py-20">
-      {/* BG GLOW */}
       <div className="absolute left-[-100px] top-[-100px] h-[300px] w-[300px] rounded-full bg-cyan-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-100px] right-[-100px] h-[300px] w-[300px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
-      {/* GRID */}
       <div className="absolute inset-0 opacity-[0.04]">
         <div
           className="h-full w-full"
@@ -60,9 +58,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {/* CARD */}
       <div className="relative w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl">
-        {/* TOP */}
         <div className="mb-8 text-center">
           <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 to-indigo-500 shadow-lg shadow-cyan-500/20">
             <span className="text-2xl font-black text-white">S</span>
@@ -75,9 +71,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* FORM */}
         <form onSubmit={onSubmit} className="space-y-5">
-          {/* EMAIL */}
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-300">
               Email Address
@@ -99,7 +93,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* PASSWORD */}
           <div>
             <label className="mb-2 block text-sm font-medium text-slate-300">
               Password
@@ -129,7 +122,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* OPTIONS */}
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 text-sm text-slate-400">
               <input
@@ -147,7 +139,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* LOGIN BUTTON */}
           <button
             type="submit"
             className="group flex h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 to-indigo-500 text-lg font-semibold text-white shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-[1.02]"
@@ -160,7 +151,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* DIVIDER */}
         <div className="my-7 flex items-center gap-4">
           <div className="h-px flex-1 bg-white/10"></div>
 
@@ -169,7 +159,6 @@ export default function LoginPage() {
           <div className="h-px flex-1 bg-white/10"></div>
         </div>
 
-        {/* GOOGLE */}
         <button
           onClick={handleSignIn}
           className="flex h-14 w-full items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 text-white transition-all duration-300 hover:bg-white/10"
@@ -178,7 +167,6 @@ export default function LoginPage() {
           Continue with Google
         </button>
 
-        {/* FOOTER */}
         <p className="mt-8 text-center text-slate-400">
           Don&apos;t have an account?{" "}
           <Link

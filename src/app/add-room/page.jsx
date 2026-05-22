@@ -13,6 +13,7 @@ import {
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
+import useTitle from "@/components/shared/useTitle";
 
 const amenitiesList = [
   "Whiteboard",
@@ -24,6 +25,8 @@ const amenitiesList = [
 ];
 
 export default function AddRoomPage() {
+  useTitle("StudyNoook | Add Room");
+
   const [selectedAmenities, setSelectedAmenities] = useState([]);
 
   const handleAmenityChange = (amenity) => {
@@ -62,7 +65,7 @@ export default function AddRoomPage() {
     const { data: session } = await authClient.getSession();
 
     const user = session?.user;
-    console.log(user);
+
     const roomData = {
       roomName: form.roomName.value,
       description: form.description.value,
@@ -111,12 +114,10 @@ export default function AddRoomPage() {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#0B1120] px-4 py-20">
-      {/* BG EFFECTS */}
       <div className="absolute left-[-100px] top-[-100px] h-[300px] w-[300px] rounded-full bg-cyan-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-100px] right-[-100px] h-[300px] w-[300px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
-      {/* GRID */}
       <div className="absolute inset-0 opacity-[0.04]">
         <div
           className="h-full w-full"
@@ -129,7 +130,6 @@ export default function AddRoomPage() {
       </div>
 
       <div className="relative mx-auto max-w-5xl">
-        {/* HEADER */}
         <div className="mb-12 text-center">
           <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
             Create New Study Space
@@ -145,10 +145,8 @@ export default function AddRoomPage() {
           </p>
         </div>
 
-        {/* FORM CARD */}
         <div className="overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-cyan-500/10 backdrop-blur-xl md:p-10">
           <form onSubmit={handleAddRoom} className="grid gap-8 md:grid-cols-2">
-            {/* ROOM NAME */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Room Name
@@ -170,7 +168,6 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* IMAGE URL */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Room Image URL
@@ -192,7 +189,6 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* FLOOR */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Floor
@@ -214,7 +210,6 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* CAPACITY */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Seat Capacity
@@ -236,7 +231,6 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* PRICE */}
             <div>
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Hourly Rate ($)
@@ -258,10 +252,8 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* EMPTY FOR ALIGNMENT */}
             <div className="hidden md:block"></div>
 
-            {/* DESCRIPTION */}
             <div className="md:col-span-2">
               <label className="mb-3 block text-sm font-medium text-slate-300">
                 Description
@@ -283,7 +275,6 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* AMENITIES */}
             <div className="md:col-span-2">
               <label className="mb-5 block text-sm font-medium text-slate-300">
                 Select Amenities
@@ -313,7 +304,6 @@ export default function AddRoomPage() {
               </div>
             </div>
 
-            {/* SUBMIT */}
             <div className="md:col-span-2">
               <button
                 type="submit"

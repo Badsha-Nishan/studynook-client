@@ -21,7 +21,11 @@ const DeleteAlert = ({ room }) => {
     );
     const data = await res.json();
 
-    toast.success("Room Deleted Successfully.");
+    if (res.ok) {
+      toast.success("Room deleted successfully");
+    } else {
+      toast.error(data.message || "Delete failed");
+    }
     redirect("/rooms");
   };
   return (

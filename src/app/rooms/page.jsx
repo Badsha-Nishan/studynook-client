@@ -14,6 +14,7 @@ import {
   Snowflake,
   ArrowRight,
 } from "lucide-react";
+import useTitle from "@/components/shared/useTitle";
 
 const filters = [
   "Wi-Fi",
@@ -31,13 +32,13 @@ const amenityIcons = {
 };
 
 export default function RoomsPage() {
+  useTitle("StudyNook | Rooms");
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
   const [selectedFilters, setSelectedFilters] = useState([]);
 
-  // FETCH ROOMS
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -57,7 +58,6 @@ export default function RoomsPage() {
     fetchRooms();
   }, []);
 
-  // FILTER FUNCTION
   const handleFilterChange = (item) => {
     if (selectedFilters.includes(item)) {
       setSelectedFilters(selectedFilters.filter((f) => f !== item));
@@ -66,7 +66,6 @@ export default function RoomsPage() {
     }
   };
 
-  // FILTERED ROOMS
   const filteredRooms = rooms.filter((room) => {
     // console.log(room);
     const matchSearch = room?.roomName
@@ -82,12 +81,10 @@ export default function RoomsPage() {
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-[#0B1120] px-4 py-20">
-      {/* BG EFFECTS */}
       <div className="absolute left-[-100px] top-[-100px] h-[300px] w-[300px] rounded-full bg-cyan-500/20 blur-3xl"></div>
 
       <div className="absolute bottom-[-100px] right-[-100px] h-[300px] w-[300px] rounded-full bg-indigo-500/20 blur-3xl"></div>
 
-      {/* GRID */}
       <div className="absolute inset-0 opacity-[0.04]">
         <div
           className="h-full w-full"
@@ -100,7 +97,6 @@ export default function RoomsPage() {
       </div>
 
       <div className="relative mx-auto max-w-7xl">
-        {/* HEADER */}
         <div className="mb-14 text-center">
           <div className="mb-4 inline-flex rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm font-medium text-cyan-300">
             Explore Study Spaces
@@ -115,9 +111,7 @@ export default function RoomsPage() {
           </p>
         </div>
 
-        {/* SEARCH + FILTER */}
         <div className="mb-12 rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-          {/* SEARCH */}
           <div className="relative">
             <Search
               size={20}
@@ -133,7 +127,6 @@ export default function RoomsPage() {
             />
           </div>
 
-          {/* FILTERS */}
           <div className="mt-6">
             <div className="mb-4 flex items-center gap-2 text-slate-300">
               <SlidersHorizontal size={18} />
@@ -162,7 +155,6 @@ export default function RoomsPage() {
           </div>
         </div>
 
-        {/* LOADING */}
         {loading ? (
           <div className="text-center text-xl text-white">Loading...</div>
         ) : filteredRooms.length === 0 ? (
@@ -187,7 +179,6 @@ export default function RoomsPage() {
                 viewport={{ once: true }}
                 className="group overflow-hidden flex flex-col h-full rounded-[2rem] border border-white/10 bg-white/5 backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 hover:border-cyan-400/30"
               >
-                {/* IMAGE */}
                 <div className="relative overflow-hidden">
                   <img
                     src={room.image}
@@ -200,7 +191,6 @@ export default function RoomsPage() {
                   </div>
                 </div>
 
-                {/* CONTENT */}
                 <div className="p-6 flex flex-col flex-grow">
                   <h2 className="text-2xl font-bold text-white">
                     {room.roomName}
@@ -221,7 +211,6 @@ export default function RoomsPage() {
                     <span className="text-sm">{room.capacity}</span>
                   </div>
 
-                  {/* AMENITIES */}
                   <div className="mt-6 flex flex-wrap gap-2">
                     {room?.amenities?.map((item, idx) => (
                       <div
@@ -234,7 +223,6 @@ export default function RoomsPage() {
                     ))}
                   </div>
 
-                  {/* BUTTON */}
                   <div className="mt-auto">
                     <Link
                       href={`/rooms/${room._id}`}
