@@ -5,8 +5,6 @@ import { motion } from "framer-motion";
 import { MapPin, Users, DollarSign, Plus, ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
-
-
 export default function MyListingsPage() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,7 +12,9 @@ export default function MyListingsPage() {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
-        const res = await fetch("http://localhost:5000/add-room");
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/add-room`
+        );
 
         if (!res.ok) {
           throw new Error("Failed to fetch rooms");

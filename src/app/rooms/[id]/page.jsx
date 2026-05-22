@@ -21,7 +21,6 @@ import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
-import getToken from "@/components/getToken";
 
 const amenityIcons = {
   "Wi-Fi": <Wifi size={18} />,
@@ -70,15 +69,20 @@ export default function RoomDetailsPage({ params }) {
     const fetchRoom = async () => {
       try {
         setLoading(true);
-        const token = user ? await getToken() : null;
 
-        const res = await fetch(`http://localhost:5000/rooms/${id}`, {
-          headers: token
-            ? {
-                authorization: `Bearer ${token}`,
-              }
-            : {},
-        });
+        const { data: tokenData } = await authClient.token();
+        const token = tokenData?.token;
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${id}`,
+          {
+            headers: token
+              ? {
+                  authorization: `Bearer ${token}`,
+                }
+              : {},
+          }
+        );
 
         const data = await res.json();
 
@@ -138,9 +142,10 @@ export default function RoomDetailsPage({ params }) {
       room;
 
     const bookingData = {
-      userId: user.id,
-      userImage: user.image,
-      userName: user.name,
+      userId: user?.id,
+      userEmail: user?.email,
+      userImage: user?.image,
+      userName: user?.name,
       roomId: _id,
       roomName,
       description,
@@ -156,13 +161,16 @@ export default function RoomDetailsPage({ params }) {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/my-bookings", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(bookingData),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/my-bookings`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(bookingData),
+        }
+      );
 
       const data = await res.json();
 

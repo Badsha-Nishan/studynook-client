@@ -63,7 +63,7 @@ export default function Footer() {
               </Link>
 
               <Link
-                href="#"
+                href="https://www.instagram.com"
                 className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-300 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400 hover:text-white"
               >
                 <FaInstagram size={18} />
@@ -151,7 +151,7 @@ export default function Footer() {
 
                 <div>
                   <p className="text-sm text-slate-400">Email</p>
-                  <p className="text-white">support@studynook.com</p>
+                  <p className="text-white">badshanisan14@gmail.com</p>
                 </div>
               </div>
 
@@ -160,7 +160,7 @@ export default function Footer() {
 
                 <div>
                   <p className="text-sm text-slate-400">Phone</p>
-                  <p className="text-white">+880 1234-567890</p>
+                  <p className="text-white">+880 1886-862697</p>
                 </div>
               </div>
 
@@ -179,7 +179,7 @@ export default function Footer() {
         {/* BOTTOM */}
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 text-center md:flex-row">
           <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} StudyNook. All rights reserved.
+            © {new Date().getFullYear()} StudyNook-Badsha. All rights reserved.
           </p>
 
           <p className="text-sm text-slate-500">

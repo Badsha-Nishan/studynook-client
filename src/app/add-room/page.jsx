@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import getToken from "@/components/getToken";
 import { authClient } from "@/lib/auth-client";
 
 const amenitiesList = [
@@ -44,37 +43,69 @@ export default function AddRoomPage() {
 
     const form = e.target;
 
+    const imageUrl = form.image.value;
+
+    const isValidUrl = (url) => {
+      try {
+        new URL(url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+
+    if (!isValidUrl(imageUrl)) {
+      toast.error("Please enter a valid image URL");
+      return;
+    }
+
+    const { data: session } = await authClient.getSession();
+
+    const user = session?.user;
+    console.log(user);
     const roomData = {
       roomName: form.roomName.value,
       description: form.description.value,
-      image: form.image.value,
+      image: imageUrl,
       floor: form.floor.value,
-      capacity: form.capacity.value,
-      hourlyRate: form.hourlyRate.value,
+      capacity: Number(form.capacity.value),
+      hourlyRate: Number(form.hourlyRate.value),
       amenities: selectedAmenities,
+
+      ownerEmail: user?.email,
+      ownerName: user?.name,
+      ownerId: user?.id,
+      createdAt: user?.createdAt,
     };
 
-    // console.log(roomData);
+    try {
+      const { data: tokenData } = await authClient.token();
 
-    // const token = await getToken();
+      const token = tokenData?.token;
 
-    const { data: tokenData } = await authClient.token();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/rooms`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(roomData),
+      });
 
-    const res = await fetch("http://localhost:5000/rooms", {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${tokenData?.token}`,
-      },
-      body: JSON.stringify(roomData),
-    });
+      const data = await res.json();
 
-    const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.message || "Failed to add room");
+        return;
+      }
 
-    if (data) {
       toast.success("Room Added Successfully.");
+
       router.push("/rooms");
       router.refresh();
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
     }
   };
 

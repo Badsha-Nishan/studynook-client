@@ -56,13 +56,16 @@ const RoomEditModal = ({ room }) => {
     console.log(roomData);
 
     // API CALL HERE
-    const res = await fetch(`http://localhost:5000/rooms/${room?._id}`, {
-      method: "PATCH",
-      headers: {
-        "content-type": "application/json",
-      },
-      body: JSON.stringify(roomData),
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${room?._id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(roomData),
+      }
+    );
 
     const data = await res.json();
     console.log(data);

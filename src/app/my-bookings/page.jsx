@@ -17,7 +17,16 @@ export default function MyBookingsPage() {
 
     const fetchBookings = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/my-bookings/${user.id}`);
+        const { data: tokenData } = await authClient.token();
+        const token = tokenData?.token;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_SERVER_URL}/my-bookings/${user.id}`,
+          {
+            headers: {
+              authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         const data = await res.json();
 
@@ -43,13 +52,16 @@ export default function MyBookingsPage() {
 
     try {
       const { data: tokenData } = await authClient.token();
-      const res = await fetch(`http://localhost:5000/my-bookings/${id}`, {
-        method: "DELETE",
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${tokenData?.token}`,
-        },
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/my-bookings/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${tokenData?.token}`,
+          },
+        }
+      );
 
       const data = await res.json();
 

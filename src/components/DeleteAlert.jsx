@@ -9,13 +9,16 @@ const DeleteAlert = ({ room }) => {
   const handleDelete = async () => {
     const { data: tokenData } = await authClient.token();
 
-    const res = await fetch(`http://localhost:5000/rooms/${room?._id}`, {
-      method: "DELETE",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${tokenData?.token}`,
-      },
-    });
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SERVER_URL}/rooms/${room?._id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${tokenData?.token}`,
+        },
+      }
+    );
     const data = await res.json();
 
     toast.success("Room Deleted Successfully.");

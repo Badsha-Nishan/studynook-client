@@ -19,9 +19,16 @@ import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
-
-
 export default function RegisterPage() {
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
 
@@ -42,6 +49,11 @@ export default function RegisterPage() {
       !validations.uppercase ||
       !validations.lowercase
     ) {
+      return;
+    }
+
+    if (!isValidUrl(user?.image)) {
+      toast.error("Please enter a valid image URL");
       return;
     }
 
