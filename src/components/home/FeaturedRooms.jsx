@@ -35,8 +35,7 @@ export default function FeaturedRooms() {
 
         const data = await res.json();
 
-        // only show first 3 rooms
-        setFeaturedRooms(data.slice(0, 3));
+        setFeaturedRooms(data.slice(0, 6));
       } catch (error) {
         console.error(error);
       } finally {
